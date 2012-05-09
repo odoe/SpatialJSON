@@ -1,4 +1,4 @@
-# Spatial JSON  #
+# Spatial JSON Converter #
 
 This is an API Rest service built using Python Bottle to convert between ESRI JSON and GeoJSON.
 This is a bare minimum REST API at the moment that will only work
