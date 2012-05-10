@@ -12,43 +12,65 @@ Still in the works:
 - possible handle a collection of features
 """
 def geo_to_esri(geojson):
-	esri = {}
-	
-	# we already know the spatial reference we want
-	# for geojson, at least in this simple case
-	sr = {"wkid": 4326}
+  esri = {}
+  
+  # we already know the spatial reference we want
+  # for geojson, at least in this simple case
+  sr = {"wkid": 4326}
 
-	# grab the geojson properties first
-	attributes = geojson["properties"]
-	# now we need the fields in the properties
-	fields = []
-	for f in attributes:
-		a = {}
-		a["alias"] = f
-		a["name"] = f
-		if isinstance(f, int):
-			a["type"] = "esriFieldTypeSmallInteger"
-		elif isinstance(f, float):
-			a["type"] = "esriFieldTypeDouble"
-		else:
-			a["type"] = "esriFieldTypeString"
-			a["length"] = 70
-		fields.append(a)
-	
-	esri["fields"] = fields
-	
-	# handle the geometry
-	# for now, simple points
-	# for now, let's stick with simple points
-	esri["geometryType"] = "esriGeometryPoint"
-	geometry = {}
-	geometry["x"] = geojson["geometry"]["coordinates"][0]
-	geometry["y"] = geojson["geometry"]["coordinates"][1]
-	features = {}
-	features["geometry"] = geometry
-	features["attributes"] = attributes
-	esri["features"] = features
-	
-	return esri
-	
-	
+  # handle the geometry
+  # for now, simple points
+  # for now, let's stick with simple points
+  esri["geometryType"] = "esriGeometryPoint"
+  esri["spatialReference"] = sr
+
+  # check for collection of features
+  # and iterate as necessary
+  if geojson["type"] == "FeatureCollection":
+    features = geojson["features"]
+    attribute_fields = features[0]["properties"]
+    esri_features = []
+    for feat in features:
+      item = extract(feat)
+      esri_features.append(item)
+
+    fields = extract_fields(attribute_fields)
+    esri["fields"] = fields
+    esri["features"] = esri_features
+  else:
+    attribute_fields = geojson["properties"]
+    fields = extract_fields(attribute_fields)
+    esri_feature = extract(geojson)
+    esri["fields"] = fields
+    esri["features"] = esri_feature
+
+  return esri
+
+def extract(feature):
+  geometry = {}
+  # drill down and grab the geometry data
+  geometry["x"] = feature["geometry"]["coordinates"][0]
+  geometry["y"] = feature["geometry"]["coordinates"][1]
+  out_feature = {}
+  out_feature["geometry"] = geometry
+  out_feature["attributes"] = feature["properties"]
+
+  return out_feature
+
+def extract_fields(attributes):
+  # now we need the fields in the properties
+  fields = []
+  for f in attributes:
+      a = {}
+      a["alias"] = f
+      a["name"] = f
+      if isinstance(f, int):
+          a["type"] = "esriFieldTypeSmallInteger"
+      elif isinstance(f, float):
+          a["type"] = "esriFieldTypeDouble"
+      else:
+          a["type"] = "esriFieldTypeString"
+          a["length"] = 70
+      fields.append(a)
+
+  return fields
