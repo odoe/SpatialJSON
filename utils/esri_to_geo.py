@@ -17,11 +17,16 @@ def esri_to_geo(esrijson):
   features = esrijson["features"]
   esri_geom_type = esrijson["geometryType"]
   count = len(features)
-
+  geojson["type"] = "FeatureCollection"
+  """
+  # Not sure how to distinguish a single
+  # Feature from an array of a single Feature
+  # Or do I even have to?
   if count > 1:
     geojson["type"] = "FeatureCollection"
   else:
     geojson["type"] = "Feature"
+  """
 
   feats = []
   for feat in features:
