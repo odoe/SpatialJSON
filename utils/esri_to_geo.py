@@ -22,10 +22,7 @@ def esri_to_geo(esrijson):
   else:
     geojson["type"] = "Feature"
 
-  feats = []
-  for feature in features:
-    feat = extract(feature)
-    feats.append(feat)
+  feats = map(extract, features)
   geojson["features"] = feats
 
   return geojson

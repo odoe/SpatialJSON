@@ -26,23 +26,19 @@ def geo_to_esri(geojson):
 
   # check for collection of features
   # and iterate as necessary
+  attribute_fields = []
   if geojson["type"] == "FeatureCollection":
     features = geojson["features"]
     attribute_fields = features[0]["properties"]
-    esri_features = []
-    for feat in features:
-      item = extract(feat)
-      esri_features.append(item)
 
-    fields = extract_fields(attribute_fields)
-    esri["fields"] = fields
-    esri["features"] = esri_features
+    esri_features = map(extract, features)
   else:
     attribute_fields = geojson["properties"]
-    fields = extract_fields(attribute_fields)
-    esri_feature = extract(geojson)
-    esri["fields"] = fields
-    esri["features"] = esri_feature
+    esri_features = extract(geojson)
+
+  fields = map(extract_field, attribute_fields)
+  esri["fields"] = fields
+  esri["features"] = esri_features
 
   return esri
 
@@ -57,20 +53,16 @@ def extract(feature):
 
   return out_feature
 
-def extract_fields(attributes):
+def extract_field(attribute):
   # now we need the fields in the properties
-  fields = []
-  for f in attributes:
-      a = {}
-      a["alias"] = f
-      a["name"] = f
-      if isinstance(f, int):
-          a["type"] = "esriFieldTypeSmallInteger"
-      elif isinstance(f, float):
-          a["type"] = "esriFieldTypeDouble"
-      else:
-          a["type"] = "esriFieldTypeString"
-          a["length"] = 70
-      fields.append(a)
-
-  return fields
+  a = {}
+  a["alias"] = attribute
+  a["name"] = attribute
+  if isinstance(attribute, int):
+    a["type"] = "esriFieldTypeSmallInteger"
+  elif isinstance(attribute, float):
+    a["type"] = "esriFieldTypeDouble"
+  else:
+    a["type"] = "esriFieldTypeString"
+    a["length"] = 70
+  return a
