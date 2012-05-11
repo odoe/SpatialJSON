@@ -9,5 +9,5 @@ I am currently expanding use of this API in [this project](https://github.com/od
 
 TODO:
 
-* Add error checking in conversions (goejson sent to geojson to esrijson, etc)
-* Add handlers for more geometry types
+* Add error checking in conversions (geojson sent to geojson to esrijson, etc)
+X Add handlers for more geometry types - complete
