@@ -10,11 +10,12 @@ optional: response = json.dumps(result)
 Still in the works:
 - parse all geometry types
 """
+
 def esri_to_geo(esrijson):
   geojson = {}
   # first, grab the properties
   features = esrijson["features"]
-
+  esri_geom_type = esrijson["geometryType"]
   count = len(features)
 
   if count > 1:
@@ -22,24 +23,49 @@ def esri_to_geo(esrijson):
   else:
     geojson["type"] = "Feature"
 
-  feats = map(extract, features)
+  feats = []
+  for feat in features:
+    feats.append(extract(feat, esri_geom_type))
+
   geojson["features"] = feats
 
   return geojson
 
-def extract(feature):
+def extract(feature, esri_geom_type):
   item = {}
   item["type"] = "Feature"
-  # can just make a direct
-  # copy of the attributes to properties
-  properties = feature["attributes"]
-  # we're going to assume we are
-  # only using points for now
+  # use the esri geometryType
+  # to determine how the coordinates array
+  # will be defined
   geom = feature["geometry"]
   geometry = {}
-  geometry["type"] = "Point"
-  geometry["coordinates"] = [ geom["x"], geom["y"] ]
+  geometry["type"] = get_geom_type(esri_geom_type)
+  geometry["coordinates"] = get_coordinates(geom, geometry["type"])
   item["geometry"] = geometry
-  item["properties"] = properties
+  # can just make a direct
+  # copy of the attributes to properties
+  item["properties"] = feature["attributes"]
 
   return item
+
+def get_geom_type(esri_type):
+  if esri_type == "esriGeometryPoint":
+    return "Point"
+  elif esri_type == "esriGeometryMultiPoint":
+    return "MultiPoint"
+  elif esri_type == "esriGeometryPolyline":
+    return "LineString"
+  elif esri_type == "esriGeometryPolygon":
+    return "Polygon"
+  else:
+    return "unknown"
+
+def get_coordinates(geom, geom_type):
+  if geom_type == "Polygon":
+    return geom["rings"]
+  elif geom_type == "LineString":
+    return geom["paths"]
+  elif geom_type == "Point":
+    return [ geom["x"], geom["y"] ]
+  else:
+    return []
