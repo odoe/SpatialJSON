@@ -4,7 +4,7 @@ This is an API Rest service built using Python Bottle to convert between ESRI JS
 This is a bare minimum REST API at the moment that can parse various
 geometry types. I started this project in response to a [code challenge](http://fredboyle.com/codechallenge/) to try something new.
 
-I am currently expanding use of this API in [this project](https://github.com/odoe/Geo-Like) using MongoDB to store the GeoJSON data.
+I am currently expanding use of this API in [this project](https://github.com/odoe/iLikeItHere) using MongoDB to store the GeoJSON data.
 
 TODO:
 
