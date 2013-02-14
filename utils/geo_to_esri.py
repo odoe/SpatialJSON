@@ -74,7 +74,7 @@ def get_geom_type(geo_type):
     return "esriGeometryMultiPoint"
   elif geo_type == "LineString":
     return "esriGeometryPolyline"
-  elif geo_type == "Polygon":
+  elif geo_type == "Polygon" or geo_type == "MultiPolygon":
     return "esriGeometryPolygon"
   else:
     return "unknown"
@@ -89,7 +89,7 @@ def get_geometry(feature):
     geometry["x"] = geom["coordinates"][0]
     geometry["y"] = geom["coordinates"][1]
   elif geo_type == "Polygon":
-    geometry["rings"] = geom
+    geometry["rings"] = geom["coordinates"][0]
   elif geo_type =="LineString":
     geometry["paths"] = geom
 
